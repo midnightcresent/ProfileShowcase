@@ -22,7 +22,7 @@ fun ProfileScreen(
     username: String,
     profilePhotoUrl: String,
     paletteImageUrl: String,
-    uploads: List<String>,
+    uploadsState: ProfileViewModel.UploadsState,
     primaryStatItems: List<ProfileStatItem>,
     secondaryStatItems: List<ProfileStatItem>,
     onUserButtonClick: () -> Unit,
@@ -82,7 +82,7 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
         item {
-            ProfileContent(uploads = uploads)
+            ProfileContent(uploadsState = uploadsState)
         }
     }
 }

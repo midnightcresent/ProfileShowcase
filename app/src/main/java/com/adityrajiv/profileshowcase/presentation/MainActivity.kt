@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val profileViewModel: ProfileViewModel = hiltViewModel()
-                    val uploadUrls by profileViewModel.uploadUrls.collectAsStateWithLifecycle()
+                    val uploadsState by profileViewModel.uploadsState.collectAsStateWithLifecycle()
                     ProfileScreen(
                         modifier = Modifier
                             .fillMaxSize()
@@ -48,8 +48,8 @@ class MainActivity : ComponentActivity() {
                             .padding(horizontal = 14.dp),
                         username = profileViewModel.username,
                         profilePhotoUrl = profileViewModel.profilePhotoUrl,
-                        uploads = uploadUrls,
                         paletteImageUrl = profileViewModel.paletteImageUrl,
+                        uploadsState = uploadsState,
                         primaryStatItems = profileViewModel.primaryStatItems,
                         secondaryStatItems = profileViewModel.secondaryStatItems,
                         onUserButtonClick = { },
@@ -116,8 +116,8 @@ private fun ProfileScreenPreview() {
             .padding(horizontal = 14.dp),
         username = "john.doe",
         profilePhotoUrl = PROFILE_URL,
-        uploads = mockUploads,
         paletteImageUrl = PALETTE_URL,
+        uploadsState = ProfileViewModel.UploadsState.Success(mockUploads),
         primaryStatItems = mockPrimaryStats,
         secondaryStatItems = mockSecondaryStats,
         onUserButtonClick = { },

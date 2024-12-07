@@ -1,8 +1,10 @@
 package com.adityrajiv.profileshowcase.presentation.profile.components
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,15 +40,18 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.SubcomposeAsyncImage
 import com.adityrajiv.profileshowcase.R
 import com.adityrajiv.profileshowcase.presentation.components.EmptyAnimation
+import com.adityrajiv.profileshowcase.presentation.components.ErrorAnimation
 import com.adityrajiv.profileshowcase.presentation.components.ImageLoadingAnimation
 import com.adityrajiv.profileshowcase.presentation.components.LoadingAnimation
+import com.adityrajiv.profileshowcase.presentation.profile.ProfileViewModel
 import com.adityrajiv.profileshowcase.presentation.theme.Barlow
+import com.adityrajiv.profileshowcase.presentation.theme.BarlowCondensed
 import com.adityrajiv.profileshowcase.presentation.theme.color.TabIndicatorYellow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileContent(
-    uploads: List<String>,
+    uploadsState: ProfileViewModel.UploadsState,
     exhibitions: List<Unit>? = null,
     revenue: Unit? = null
 ) {
@@ -111,10 +116,29 @@ fun ProfileContent(
 
     when (tabState) {
         0 -> {
-            if (uploads.isNotEmpty())
-                TwoColumnImageGrid(uploads)
-            else
-                LoadingAnimation(modifier = Modifier.fillMaxSize())
+            when (uploadsState) {
+                is ProfileViewModel.UploadsState.Loading -> {
+                    LoadingAnimation(modifier = Modifier.fillMaxSize())
+                }
+
+                is ProfileViewModel.UploadsState.Success -> {
+                    TwoColumnImageGrid(uploadsState.urls)
+                }
+
+                is ProfileViewModel.UploadsState.Error -> {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        ErrorAnimation(modifier = Modifier.fillMaxSize())
+                        Text(
+                            text = uploadsState.message,
+                            fontFamily = BarlowCondensed,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+            }
         }
 
         1 -> {
@@ -155,6 +179,7 @@ fun TwoColumnImageGrid(images: List<String>) {
 
 @Composable
 fun ImageCard(imageUrl: String) {
+    Log.d("Hello url", imageUrl)
     SubcomposeAsyncImage(
         modifier = Modifier
             .fillMaxWidth()
@@ -167,10 +192,27 @@ fun ImageCard(imageUrl: String) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(color = Color.Gray),
+                    .background(color = Color.DarkGray),
                 contentAlignment = Alignment.Center
             ) {
                 ImageLoadingAnimation()
+            }
+        },
+        error = {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = Color.DarkGray),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                ErrorAnimation()
+                Text(
+                    text = it.result.throwable.message.toString(),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    fontFamily = BarlowCondensed
+                )
             }
         }
     )

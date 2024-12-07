@@ -49,6 +49,19 @@ fun ImageLoadingAnimation() {
 }
 
 @Composable
+fun ErrorAnimation(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        LottieLoader(
+            modifier = Modifier.size(50.dp),
+            resId = R.raw.error_animation
+        )
+    }
+}
+
+@Composable
 fun EmptyAnimation(
     modifier: Modifier = Modifier
 ) {

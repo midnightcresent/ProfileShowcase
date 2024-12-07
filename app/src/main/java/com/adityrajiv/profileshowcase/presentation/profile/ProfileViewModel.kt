@@ -11,19 +11,27 @@ import com.adityrajiv.profileshowcase.presentation.profile.util.PALETTE_URL
 import com.adityrajiv.profileshowcase.presentation.profile.util.PROFILE_URL
 import com.adityrajiv.profileshowcase.presentation.profile.util.ProfileStatItem
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
     private val imagePostApi: ImagePostApi
-): ViewModel() {
+) : ViewModel() {
 
-    private val _uploadUrls = MutableStateFlow<List<String>>(emptyList())
-    val uploadUrls = _uploadUrls.asStateFlow() // Exposes the upload URLs as an immutable StateFlow for UI updates.
+    sealed class UploadsState {
+        data object Loading : UploadsState()
+        data class Success(val urls: List<String>) : UploadsState()
+        data class Error(val message: String) : UploadsState()
+    }
+
+    private val _uploadsState = MutableStateFlow<UploadsState>(UploadsState.Loading)
+    val uploadsState = _uploadsState.asStateFlow()
 
     val username by mutableStateOf(
         "john.doe"
@@ -75,15 +83,50 @@ class ProfileViewModel @Inject constructor(
         )
     )
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) { // Launches a coroutine in the ViewModel's scope on the IO dispatcher for background tasks.
-            imagePostApi.getImagePosts(
-                page = 1,
-                limit = 10
-            ).body()?.let { imagePosts ->
-                val urls = imagePosts.map { it.url } // Collect URLs from the response
-                _uploadUrls.emit(urls) // Emit the URLs to the StateFlow
+    // Coroutine exception handler for comprehensive error tracking
+    private val coroutineExceptionHandler = CoroutineExceptionHandler { _, throwable ->
+        _uploadsState.update {
+            UploadsState.Error(
+                message = throwable.message ?: "An unexpected error occurred"
+            )
+        }
+    }
+
+    // Function to fetch image posts
+    private fun fetchImagePosts(page: Int = 1, limit: Int = 10) {
+        // Reset to loading state before starting a new network call
+        _uploadsState.value = UploadsState.Loading
+
+        viewModelScope.launch(Dispatchers.IO + coroutineExceptionHandler) {
+            try {
+                val response = imagePostApi.getImagePosts(page, limit)
+
+                if (response.isSuccessful) {
+                    val result = response.body()
+                    if (result != null) {
+                        val urls = result.map { it.url }
+                        _uploadsState.update { UploadsState.Success(urls) }
+                    } else {
+                        _uploadsState.update {
+                            UploadsState.Error("No data received from the server")
+                        }
+                    }
+                } else {
+                    _uploadsState.update {
+                        UploadsState.Error("Server error: ${response.code()} - ${response.message()}")
+                    }
+                }
+            } catch (e: Exception) {
+                _uploadsState.update {
+                    UploadsState.Error(
+                        message = e.message ?: "Network connection error"
+                    )
+                }
             }
         }
+    }
+
+    init {
+        fetchImagePosts()
     }
 }
