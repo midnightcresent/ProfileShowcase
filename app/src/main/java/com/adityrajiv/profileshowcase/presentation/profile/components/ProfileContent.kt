@@ -179,7 +179,6 @@ fun TwoColumnImageGrid(images: List<String>) {
 
 @Composable
 fun ImageCard(imageUrl: String) {
-    Log.d("Hello url", imageUrl)
     SubcomposeAsyncImage(
         modifier = Modifier
             .fillMaxWidth()
