@@ -19,3 +19,21 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Retrofit
+-keepattributes Signature
+-keepattributes RuntimeVisibleAnnotations
+
+# Keep all annotations
+-keepclassmembers class * {
+    @retrofit2.http.* <methods>;
+}
+
+# Keep model classes
+-keep class com.adityrajiv.profileshowcase.data.model.** { *; }
+
+# OkHttp (if used)
+-dontwarn okhttp3.**
+-dontwarn okio.**
+
+-keep interface com.adityrajiv.profileshowcase.data.repository.** { *; }
