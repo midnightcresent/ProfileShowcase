@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--Common-->
+    <string name="uploadButtonText">Upload</string>
+    <string name="uploadButtonAltText">Uploads</string>
+
+    <!--ProfileTopBar-->
+    <string name="brandContentDesc">AGC</string>
+    <string name="userIconContentDesc">User</string>
+    <string name="addIconContentDesc">Create new</string>
+    <string name="drawerIconContentDesc">Open drawer</string>
+
+    <!--ProfileMainHeader-->
+    <string name="editButtonText">Edit</string>
+    <string name="profilePhotoContentDesc">Profile photo</string>
+
+    <!--DashboardRow-->
+    <string name="dashboardText">My dashboard</string>
+
+    <!--PaletteRow-->
+    <string name="paletteText">Palette</string>
+
+    <!--ProfileContent-->
+    <string name="exhibitionsTabText">Exhibitions</string>
+    <string name="revenueTabText">Revenue</string>
+
+</resources>
